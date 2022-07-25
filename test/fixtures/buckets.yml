@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+
+two:
+  user: two
+
+bucket1:
+  id: 1
+  user_id: 1
+
+bucket2:
+  id: 2
+  user_id: 2

@@ -1,0 +1,91 @@
+- flash.each do |type, msg|
+  .alert.alert-danger.alert-dismissible.fade.show{:style => "z-index: 99"}
+    = msg
+    %button.btn-close{"aria-label" => "Close", "data-bs-dismiss"=> "alert",:type => "button"}
+%h1 Cart
+%table#Table.table.table-striped.table-bordered{:style => "width:100%"}
+  %thead
+    %tr
+      %th
+      %th Name
+      %th Price
+      %th Quantity
+      %th description
+      %th Add
+      %th Remove
+      %th Store
+  -@price = 0 
+  -@count = 0
+  %tbody
+  - @itemsInBucket.each do |item|
+    %tr
+      -@quan = BucketHasItem.find_by(bucket_id: Bucket.find_by(user_id: @user_id),item_id: item.id).quantity
+      -if @quan > Item.find(item.id).quantity
+        -@quan = Item.find(item.id).quantity
+      %td
+        = image_tag(item.avatar, width: "100 rem;")
+      %td #{item.name}
+      %td #{item.price*@quan}
+      %td #{@quan}
+      %td #{item.description}
+      -@price += item.price*@quan
+      -@count += 1
+      -@found = true
+      -@add_to_cart = BucketHasItem.where(bucket_id: Bucket.find_by(user_id: @user_id)).find_by(item_id: item.id)
+      -if @add_to_cart == nil
+        -@found = false
+        -@add_to_cart = BucketHasItem.new
+      %td
+        = simple_form_for(@add_to_cart, url:"/add_to_cart/#{item.id}", method: :post) do |f|
+          %button.btn.btn-success{"data-bs-target" => "#item#{item.id}", "data-bs-toggle" => "modal", :type => "button"} +
+          .modal.fade{id: "item#{item.id}", "aria-hidden" => "true", :tabindex => "-1"}
+            .modal-dialog
+              .modal-content
+                .modal-header
+                  %h5.modal-title add quantity
+                  %button.btn-close{"aria-label" => "Close", "data-bs-dismiss" => "modal", :type => "button"}
+                .modal-body
+                  .simple_form-inputs
+                    -if @found == false
+                      = f.input :quantity, input_html: { value: '0', min: '0', max: item.quantity, step: '1' }
+                    -else
+                      = f.input :quantity, input_html: { value: '0', min: '0', max: item.quantity-@add_to_cart.quantity, step: '1' }
+                .modal-footer
+                  %button.btn.btn-secondary{"data-bs-dismiss" => "modal", :type => "button"} Close
+                  %input.btn.btn-outline-success{:type => "submit", :value => "Update"}
+      %td
+        -if @found
+          -@remove_from_cart = BucketHasItem.find_by(bucket_id: Bucket.find_by(user_id: @user_id),item_id: item.id)
+          = simple_form_for(@remove_from_cart, url:"/remove_from_cart/#{item.id}", method: :post) do |f|
+            %button.btn.btn-danger{"data-bs-target" => "#removeItem#{item.id}", "data-bs-toggle" => "modal", :type => "button"} -
+            .modal.fade{id: "removeItem#{item.id}", "aria-hidden" => "true", :tabindex => "-1"}
+              .modal-dialog
+                .modal-content
+                  .modal-header
+                    %h5.modal-title remove quantity
+                    %button.btn-close{"aria-label" => "Close", "data-bs-dismiss" => "modal", :type => "button"}
+                  .modal-body
+                    .simple_form-inputs
+                      = f.input :quantity, input_html: { value: '0', min: '0', max: @remove_from_cart.quantity, step: '1' }
+                  .modal-footer
+                    %button.btn.btn-secondary{"data-bs-dismiss" => "modal", :type => "button"} Close
+                    %input.btn.btn-outline-success{:type => "submit", :value => "Remove"}
+      %td 
+        %a.btn.btn-outline-primary{:href => "/stores/#{item.store_id}", :role => "button"} store
+-if @count > 0
+  %p1.d-flex.justify-content-end= "total: #{@price} baht"
+  %hr
+  .d-flex.justify-content-end
+    %button.btn.btn-primary{"data-bs-target" => "#payment", "data-bs-toggle" => "modal", :type => "button"}
+      pay
+    .modal.fade{id: "payment", "aria-hidden" => "true", "aria-labelledby" => "exampleModalLabel", :tabindex => "-1"}
+      .modal-dialog
+        .modal-content
+          .modal-header
+            %h5.modal-title comfirm payment
+            %button.btn-close{"aria-label" => "Close", "data-bs-dismiss" => "modal", :type => "button"}
+          .modal-body
+            total price: #{@price} baht
+          .modal-footer
+            %button.btn.btn-secondary{"data-bs-dismiss" => "modal", :type => "button"} Close
+            = button_to("confirm", "/payment", method: "Post", class: "btn btn-outline-success")

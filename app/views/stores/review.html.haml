@@ -1,0 +1,17 @@
+= simple_form_for(@review, url:"/rate_store/#{@store.id}", method: :post) do |f|
+  = f.error_notification
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+
+  .simple_form-inputs
+    .container-sm
+      .col-md-6.col-sm-12
+        .row
+          = f.input :rate_score, input_html: { min: '0', max: '5', step: '1' }
+        .row
+          = f.input :comment
+  %br
+  .form-actions
+    .col-md-6.col-sm-12
+      .d-grid.gap-2.d-md-flex.justify-content-md-center
+        %input.btn.btn-outline-success{:type => "submit", :value => "OK"}/
+        %a.btn.btn-outline-primary{:href => @store, :role => "button"} cancel

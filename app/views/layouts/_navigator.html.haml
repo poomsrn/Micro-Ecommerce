@@ -1,0 +1,45 @@
+%nav.navbar.navbar-expand-lg.navbar-light.bg-light
+  .container-fluid
+    %p5{:style => "color: orange;font-size: 160%;"} Shopee
+    %ul.navbar-nav
+      %li.nav-item
+        -if session[:user_id]
+          %a.nav-link.active{"aria-current" => "page", :href => feed_path} Home
+        -elsif session[:store_id]
+          %a.nav-link.active{"aria-current" => "page", :href => "/store"} Home
+        -else
+          %a.nav-link.active{"aria-current" => "page", :href => main_path} Home
+      %li.nav-item
+        -if session[:user_id]
+          %a.nav-link.active{"aria-current" => "page", :href => "/bucket"} Cart
+        -else
+          %a.nav-link.disabled Cart
+      %li.nav-item
+        -if session[:user_id]
+          %a.nav-link.active{"aria-current" => "page", :href => "/favourite_list"} Favourite
+        -else
+          %a.nav-link.disabled Favourite
+      -if session[:user_id] || session[:store_id]
+        %li.nav-item
+          -if session[:user_id]
+            %a.nav-link.active{"aria-current" => "page", :href => "/order_history"} History
+          -elsif session[:store_id]
+            %a.nav-link.active{"aria-current" => "page", :href => "/order_history_store"} History
+      -unless(session[:user_id] || session[:store_id])
+        %li.nav-item
+          -if !(session[:user_id] || session[:store_id])
+            %a.nav-link.active{"aria-current" => "page", :href => main_path} login for user
+          -else
+            %a.nav-link.disabled login for user
+        %li.nav-item
+          -if !(session[:user_id] || session[:store_id])
+            %a.nav-link.active{"aria-current" => "page", :href => store_login_path} login for store
+          -else
+            %a.nav-link.disabled login for store
+      -if session[:user_id]
+        %form.d-flex{:action => "/search"}
+          %input.form-control.me-2{"aria-label" => "Search", :placeholder => "Search by name",:name => "q", :type => "search"}/
+          %button.btn.btn-outline-success{:type => "submit"} Search
+    .d-flex.justify-content-end
+      %li.nav-item
+        %a.nav-link.active{"aria-current" => "page", :href => main_path} logout  

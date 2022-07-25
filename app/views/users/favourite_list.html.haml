@@ -1,0 +1,69 @@
+- flash.each do |type, msg|
+  .alert.alert-danger.alert-dismissible.fade.show{:style => "z-index: 99"}
+    = msg
+    %button.btn-close{"aria-label" => "Close", "data-bs-dismiss"=> "alert",:type => "button"}
+.container.bg-light
+  %h1.d-flex.justify-content-center Favourite Store
+  - @storesInFavouriteList.each do |store|
+    %hr
+    .row
+      .col.d-flex.justify-content-begin
+        %h4 Store: #{store.name}
+      .col.d-flex.justify-content-end
+        %a.btn.btn-primary.text-white{:href => "/stores/#{store.id}", :role => "button"} store
+    .row.gx-5
+      -store.items.each do |item|
+        .card{:style => "width: 18rem;margin: 0.5rem;padding: 0rem;"}
+          -if item.avatar.attached?
+            %img.card-img-top
+              = image_tag(item.avatar)
+          .card-body
+            %h5.card-title #{item.name}
+            %p.card-text description: #{item.description}
+            %ul.list-group.list-group-flush
+              %li.list-group-item price: #{item.price}
+              %li.list-group-item quantity: #{item.quantity}
+          .card-body
+            -@found = true
+            -@add_to_cart = BucketHasItem.where(bucket_id: Bucket.find_by(user_id: @user_id)).find_by(item_id: item.id)
+            -if @add_to_cart == nil
+              -@found = false
+              -@add_to_cart = BucketHasItem.new
+            = simple_form_for(@add_to_cart, url:"/add_to_cart/#{item.id}", method: :post) do |f|
+              -if item.quantity > 0
+                %button.btn.btn-success.position-absolute.bottom-0.end-0{"data-bs-target" => "#item#{item.id}", "data-bs-toggle" => "modal", :type => "button",:style => "width: 2.5rem;"} +
+              -else
+                %button.btn.btn-success.position-absolute.bottom-0.end-0.disabled{"data-bs-target" => "#item#{item.id}", "data-bs-toggle" => "modal", :type => "button",:style => "width: 2.5rem;"} +
+              .modal.fade{id: "item#{item.id}", "aria-hidden" => "true", :tabindex => "-1"}
+                .modal-dialog
+                  .modal-content
+                    .modal-header
+                      %h5.modal-title add quantity
+                      %button.btn-close{"aria-label" => "Close", "data-bs-dismiss" => "modal", :type => "button"}
+                    .modal-body
+                      .simple_form-inputs
+                        -if @found == false
+                          = f.input :quantity, input_html: { value: '0', min: '0', max: item.quantity, step: '1' }
+                        -else
+                          = f.input :quantity, input_html: { value: '0', min: '0', max: item.quantity-@add_to_cart.quantity, step: '1' }
+                    .modal-footer
+                      %button.btn.btn-secondary{"data-bs-dismiss" => "modal", :type => "button"} Close
+                      %input.btn.btn-outline-success{:type => "submit", :value => "Update"}
+            -if @found
+              -@remove_from_cart = BucketHasItem.find_by(bucket_id: Bucket.find_by(user_id: @user_id),item_id: item.id)
+              = simple_form_for(@remove_from_cart, url:"/remove_from_cart/#{item.id}", method: :post) do |f|
+                %button.btn.btn-danger.position-absolute.bottom-0.start-0{"data-bs-target" => "#removeItem#{item.id}", "data-bs-toggle" => "modal", :type => "button", :style => "width: 2.5rem;"} -
+                .modal.fade{id: "removeItem#{item.id}", "aria-hidden" => "true", :tabindex => "-1"}
+                  .modal-dialog
+                    .modal-content
+                      .modal-header
+                        %h5.modal-title add quantity
+                        %button.btn-close{"aria-label" => "Close", "data-bs-dismiss" => "modal", :type => "button"}
+                      .modal-body
+                        .simple_form-inputs
+                          = f.input :quantity, input_html: { value: '0', min: '0', max: @remove_from_cart.quantity, step: '1' }
+                      .modal-footer
+                        %button.btn.btn-secondary{"data-bs-dismiss" => "modal", :type => "button"} Close
+                        %input.btn.btn-outline-success{:type => "submit", :value => "Remove"}
+            -else 
+              %button.btn.btn-danger.position-absolute.bottom-0.start-0.disabled{:style => "width: 2.5rem;"} -

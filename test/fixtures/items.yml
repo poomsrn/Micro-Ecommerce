@@ -1,0 +1,14 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# one:
+#   id: 1
+#   name: eggs
+#   store_id: 1
+#   price: 20
+#   quantity: 4
+#   description: fresh eggs
+
+# two:
+#   name: MyString
+#   price: 1.5
+#   description: MyString

@@ -1,0 +1,25 @@
+- flash.each do |type, msg|
+  .alert.alert-danger.alert-dismissible.fade.show{:style => "z-index: 99"}
+    = msg
+    %button.btn-close{"aria-label" => "Close", "data-bs-dismiss"=> "alert",:type => "button"}
+%h1 Order History
+%table#Table.table.table-striped.table-bordered{:style => "width:100%"}
+  %thead
+    %tr
+      %th Order id
+      %th 
+      %th Name
+      %th Quantity
+      %th Price
+      %th Created at
+  %tbody
+  - @records_array.each do |record|
+    -@item = Item.find(record["item_id"])
+    %tr
+      %td #{record["order_id"]}
+      %td 
+        = image_tag(@item.avatar, width: "100 rem;")
+      %td #{@item.name}
+      %td #{record["quantity"]}
+      %td #{@item.price*record["quantity"]}
+      %td #{record["created_at"]}

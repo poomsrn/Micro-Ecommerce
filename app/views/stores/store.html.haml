@@ -1,0 +1,102 @@
+- flash.each do |type, msg|
+  .alert.alert-danger.alert-dismissible.fade.show{:style => "z-index: 99"}
+    = msg
+    %button.btn-close{"aria-label" => "Close", "data-bs-dismiss"=> "alert",:type => "button"}
+.row
+  .col
+    %h1 #{@store.name}
+  .col.d-flex.justify-content-end
+    %a.btn.btn-outline-primary{:href => "/items/new", :role => "button"} Add item
+
+%table#Table.table.table-striped.table-bordered{:style => "width:100%"}
+  %thead
+    %tr
+      %th Picture
+      %th Name
+      %th Description
+      %th Price
+      %th Quantity
+      %th Tag
+      %th Add tag
+      %th Add stock
+      %th Remove stock
+      %th Edit
+  %tbody
+  -@store.items.each do |item|
+    %tr
+      %td 
+        -if item.avatar.attached?
+          = image_tag(item.avatar, width: "100 rem;")
+      %td #{item.name}
+      %td #{item.description}
+      %td #{item.price}
+      %td #{item.quantity}
+      %td #{item.show_tag(item.id)}
+      %td
+        = simple_form_for(@add_tag, url:"/add_tag/#{item.id}", method: :post) do |f|
+          %button.btn.btn-secondary{"data-bs-target" => "#add_tag_item#{item.id}", "data-bs-toggle" => "modal", :type => "button"}
+            + tag
+          .modal.fade{id: "add_tag_item#{item.id}","aria-hidden" => "true", :tabindex => "-1"}
+            .modal-dialog
+              .modal-content
+                .modal-header
+                  %h5.modal-title Choose tag
+                  %button.btn-close{"aria-label" => "Close", "data-bs-dismiss" => "modal", :type => "button"}
+                .modal-body
+                  .simple_form-inputs
+                    = f.select :name, [['Select tag', nil], 'food', 'electronic']
+                .modal-footer
+                  %button.btn.btn-secondary{"data-bs-dismiss" => "modal", :type => "button"} Close
+                  %input.btn.btn-outline-success{:type => "submit", :value => "Add"}
+      %td
+        = simple_form_for(item, url:"/add_stock/#{item.id}", method: :post) do |f|
+          %button.btn.btn-success{"data-bs-target" => "#addItemQuantity#{item.id}", "data-bs-toggle" => "modal", :type => "button"}
+            +
+          .modal.fade{id: "addItemQuantity#{item.id}", "aria-hidden" => "true", :tabindex => "-1"}
+            .modal-dialog
+              .modal-content
+                .modal-header
+                  %h5.modal-title add quantity
+                  %button.btn-close{"aria-label" => "Close", "data-bs-dismiss" => "modal", :type => "button"}
+                .modal-body
+                  .simple_form-inputs
+                    = f.input :quantity, input_html: { value: '0', min: '0', max: 9999, step: '1' }
+                .modal-footer
+                  %button.btn.btn-secondary{"data-bs-dismiss" => "modal", :type => "button"} Close
+                  %input.btn.btn-outline-success{:type => "submit", :value => "Update"}
+      %td
+        -if item.quantity > 0
+          = simple_form_for(item, url:"/remove_stock/#{item.id}", method: :post) do |f|
+            %button.btn.btn-danger{"data-bs-target" => "#removeItemQuantity#{item.id}", "data-bs-toggle" => "modal", :type => "button"}
+              \-
+            .modal.fade{id: "removeItemQuantity#{item.id}", "aria-hidden" => "true", :tabindex => "-1"}
+              .modal-dialog
+                .modal-content
+                  .modal-header
+                    %h5.modal-title remove quantity
+                    %button.btn-close{"aria-label" => "Close", "data-bs-dismiss" => "modal", :type => "button"}
+                  .modal-body
+                    .simple_form-inputs
+                      = f.input :quantity, input_html: { value: '0', min: '0', max: item.quantity, step: '1' }
+                  .modal-footer
+                    %button.btn.btn-secondary{"data-bs-dismiss" => "modal", :type => "button"} Close
+                    %input.btn.btn-outline-success{:type => "submit", :value => "Remove"}
+      %td
+        %a.btn.btn-light{:href => "/items/#{item.id}/edit", :role => "button"} edit
+%br
+%br
+%br
+%h3 Review
+.row.gx-3
+  -Rate.where(store_id: @store.id).each do |review|
+    .card.text-center{:style => "width: 18rem;margin: 0.5rem;"}
+      .card-header
+        created by: #{User.find(review.user_id).name}
+      .card-body
+        %h5.card-title score: #{review.rate_score}
+        %p.card-text comment: #{review.comment}
+      .card-footer.text-muted
+        #{review.created_at}
+
+
+

@@ -1,0 +1,29 @@
+- flash.each do |type, msg|
+  .alert.alert-danger.alert-dismissible.fade.show{:style => "z-index: 99"}
+    = msg
+    %button.btn-close{"aria-label" => "Close", "data-bs-dismiss"=> "alert",:type => "button"}
+%p
+  %b Username:
+  = @user.username
+%p
+  %b Email:
+  = @user.email
+%p
+  %b Name:
+  = @user.name
+%p
+  %b Address:
+  = @user.address
+%p
+  %b Phone:
+  = @user.phone
+%p
+  %b Gender:
+  = @user.gender
+%p
+  %b Birthdate:
+  = @user.birthdate
+
+= link_to 'Edit', edit_user_path(@user)
+\|
+= link_to 'Back', users_path

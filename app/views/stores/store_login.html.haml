@@ -1,0 +1,8 @@
+- flash.each do |type, msg|
+	.alert.alert-danger.alert-dismissible.fade.show{:style => "z-index: 99"}
+		= msg
+		%button.btn-close{"aria-label" => "Close", "data-bs-dismiss"=> "alert",:type => "button"}
+.row.justify-content-md-center
+	.col-md-6.col-sm-12
+		%h1.d-flex.justify-content-center Login for store
+= render "formLogin" ,user:@store
